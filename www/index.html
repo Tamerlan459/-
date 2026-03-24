@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <title>KROP-AI v1.0.2 (NEW) AUTONOMOUS</title>
+    <style>
+        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #terminal { flex: 1; padding: 15px; overflow-y: auto; font-size: 14px; background: darkblue; }
+        .msg { margin-bottom: 12px; padding: 10px; border-left: 3px solid #00ff41; background: rgba(0, 255, 65, 0.05); }
+        .user { border-left-color: #0088ff; color: #0088ff; }
+        .input-bar { display: flex; padding: 10px; background: #111; border-top: 1px solid #333; }
+        input { flex: 1; background: #000; border: 1px solid #00ff41; color: #00ff41; padding: 12px; outline: none; }
+        button { background: #00ff41; color: #000; border: none; padding: 10px 20px; font-weight: bold; }
+    </style>
+</head>
+ <body style="background: darkblue !important; color: red !important;"> <h1 style="text-align:center;">V2 ACTIVE</h1>
+    <div id="terminal"></div>
+    <div class="input-bar">
+        <input type="text" id="cmd" placeholder="Спроси КРОПА о чем угодно...">
+        <button id="send">ПОИСК</button>
+    </div>
+
+    <script>
+        const term = document.getElementById('terminal');
+        const input = document.getElementById('cmd');
+
+        function addLog(text, type = "") {
+            const div = document.createElement('div');
+            div.className = 'msg ' + type;
+            div.innerHTML = `<b>${type === 'user' ? 'ТЫ' : 'КРОП'}:</b> ${text}`;
+            term.appendChild(div);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        async function searchInternet(query) {
+            addLog("🔎 Ищу в сети: " + query, "krop");
+            try {
+                // Используем бесплатный API DuckDuckGo для мгновенных ответов
+                const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`);
+                const data = await response.json();
+                
+                let answer = data.AbstractText || "Бро, инфы мало, но я ищу дальше...";
+                if (data.RelatedTopics && data.RelatedTopics.length > 0 && !data.AbstractText) {
+                    answer = data.RelatedTopics[0].Text;
+                }
+                
+                addLog(answer, "krop");
+            } catch (e) {
+                addLog("🚨 Ошибка связи с интернетом!", "error");
+            }
+        }
+
+        document.getElementById('send').onclick = () => {
+            const val = input.value;
+            if(!val) return;
+            addLog(val, 'user');
+            searchInternet(val);
+            input.value = '';
+        };
+    </script>
+</body>
+</html>
